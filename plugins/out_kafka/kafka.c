@@ -140,6 +140,14 @@ int produce_message(struct flb_time *tm, msgpack_object *map,
                 topic = flb_kafka_topic_lookup((char *) val.via.str.ptr,
                                                val.via.str.size,
                                                ctx);
+                char topic_name[val.via.str.size+1];
+                strncpy(topic_name, val.via.str.ptr, val.via.str.size);
+                topic_name[val.via.str.size] = '\0';
+                flb_debug("[out_kafka] found topic name %s, topic name in msg %s",topic->name, topic_name);
+                if(!topic || strncmp(val.via.str.ptr, topic->name, val.via.str.size) != 0) {
+                    topic = flb_kafka_topic_create(topic_name, ctx);
+                }
+                flb_debug("[out_kafka] final topic name %s",topic->name);
             }
         }
     }
